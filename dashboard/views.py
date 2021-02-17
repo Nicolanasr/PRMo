@@ -1,11 +1,12 @@
 from django.shortcuts import render, reverse, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from index.models import Task, User, Status, Group
+from index.models import Task, User, Status, Group, Comment
 from django.contrib import messages
 from .forms import TaskForm
 from django.http import Http404
 from django.contrib.auth.decorators import user_passes_test
+import datetime
 # Create your views here.
 
 def can_add(user):
@@ -108,7 +109,7 @@ def task(request, task):
     
     usergp = request.user.groups.all()
     users = User.objects.filter(groups__name=usergp[0].name)
-    form = TaskForm()
+    # form = TaskForm()
     grplist =[]
     for x in usergp:
         grplist.append(x)
@@ -227,3 +228,22 @@ def TaskReview(request, group):
     return redirect('dashboard:index', group)
 
 
+def addComment(request, task):
+    taskid = get_object_or_404(Task, id=task)
+    if request.method == 'POST':
+        comment_body = request.POST.get('comment_sent')
+        title = comment_body[:50]
+        user = request.user
+        date_added = datetime.datetime.now()
+
+        comment = Comment(task=taskid, user=user, date_added=date_added, body=comment_body, title=title)
+        comment.save()
+
+    return redirect('dashboard:task', task)
+
+def deleteComment(request, task, comment_id):
+    c_id = get_object_or_404(Comment, id=comment_id)
+    print(c_id.user)
+    if request.user == c_id.user:
+        c_id.delete()
+    return redirect('dashboard:task', task)

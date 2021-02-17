@@ -14,6 +14,7 @@ class Status(models.Model):
     
     name = models.CharField(max_length=25)
 
+
 class Task(models.Model):
     def __str__(self) :
         return self.title
@@ -28,3 +29,17 @@ class Task(models.Model):
     moreinfo = models.TextField(blank=True)
     due = models.DateField(default=datetime.datetime.now, blank=False)
     added = models.DateTimeField(default=datetime.datetime.now, blank=True)
+
+
+class Comment(models.Model):
+    class Meta:
+        ordering = ['-date_added']
+    def __str__(self):
+        return self.title
+    
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, related_name='comments', on_delete=models.CASCADE)
+    body = models.TextField()
+    title = models.CharField(max_length=50, blank=True, default="")
+    date_added = models.DateTimeField(auto_now_add=True)
