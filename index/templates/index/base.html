@@ -149,13 +149,16 @@
             <div class="container">
                 <a class="navbar-brand" href={% url 'index:index' %}>PRM</a>
                 <div>
-				{% for g in grp %}
+				{% if show %}
+					{% for g in grp %}
 					{% if "TL" in g|stringformat:"s" %}
 					{% comment %} con {% endcomment %}
 					{% elif group == g|stringformat:"s" %}
 						<a class="btn btn-outline-primary me-2" type="button" href="{% url 'dashboard:TaskReview' g%}">Tasks awaiting Review</a>
 					{% endif %}
 				{% endfor %}
+				{% endif %}
+				
                     <a href={% url 'index:login' %} class="btn btn-outline-info me-2" type="button">{{request.user}}</a>
                     <a href={% url 'index:logout' %} class="btn btn-sm btn-outline-danger" type="button">Logout</a>
                 </div>

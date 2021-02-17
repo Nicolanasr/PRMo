@@ -12,7 +12,7 @@ def can_add(user):
     if user.groups.filter(name='TL').exists():
         return True
     else:
-        raise Http404("You do not have permission to access this page")
+        return False
 
 
 @login_required(login_url="index:login")
@@ -38,6 +38,10 @@ def index(request, group):
     for x in usergp:
         grplist.append(x)
     
+    show = False
+    if can_add(request.user):
+        show = True
+    
     if group not in str(grplist):
         messages.error(request, "You do not have permission to access :  \"" 
         + request.META['PATH_INFO'] + "\" Please Contact your team leader for more info!")
@@ -47,7 +51,7 @@ def index(request, group):
         grp = Group.objects.get(name=group)
         grp = grp.id
         task = Task.objects.filter(group=grp)
-        ctx = {'tasks': task, 'grp':list(usergp), 'group': group}
+        ctx = {'tasks': task, 'grp':list(usergp), 'group': group, 'show': show}
         return render(request, 'dashboard/dashboard.html', ctx)
 
 @user_passes_test(can_add)
