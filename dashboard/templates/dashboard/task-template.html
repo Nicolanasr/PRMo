@@ -1,0 +1,157 @@
+{% extends "index/base.html" %}
+{% block title %}{{ task.title }}{% endblock %}
+{% block content %}
+
+<div class="container-sm " style="margin-top: 100px;">
+  {% for message in messages %}
+  {% if message.tags|stringformat:"s" == "error"  %}
+  <p id="messages" class="bg-danger rounded text-center" style="color: rgb(255, 255, 255); width: 100%;"> {{ message }}
+  </p>
+  {% else %}
+  <p id="messages" class="bg-{{ message.tags }} rounded text-center" style="color: rgb(255, 255, 255);">
+    {{ message }} </p>
+  {%endif%}
+  {% endfor %}
+  <div class="">
+    <div class="modal-content">
+      <div class="card">
+        <div class="card-header container ">
+          <div class="row justify-content-between">
+            <div class="col container">
+              <div class="container m-0 p-0 pt-1">
+                <div class="row m-0 p-0 pt-1">
+                  <div class="col-sm border-bottom p-1">
+                    {{ task.title }}
+                  </div>
+                  <div class="col-sm border-bottom p-1">
+                    {{ task.user }}
+                  </div>
+                  <div class="col-sm border-bottom p-1">
+                    {{ task.due }}
+                    {% now "Y-m-d" as todays_date %}
+                  {% if todays_date > task.due|date:"Y-m-d" %}
+                    <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="Overdue">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-exclamation-triangle text-danger " viewBox="0 0 16 16">
+                        <path
+                          d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z" />
+                        <path
+                          d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z" />
+                      </svg>
+                    </span>
+                  {% endif %}
+                  </div>
+                  <span class="col-sm p-1 border-bottom p-1"
+                    style="font-size: 1rem !important; font-weight: 500 !important;">
+                    {{ task.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 col-6 justify-content-end d-md-block d-none">
+              <div class="row justify-content-end">
+                {% if request.user == task.user%}
+                {% if  task.status|stringformat:"s" != "Awaiting Review"%}
+                <form action="{% url 'dashboard:TaskDone' task.id %}" method="POST"
+                  class="resp-p col-sm-4 col-md-4 col-lg-4 justify-content-end m-0">
+                  {% csrf_token %}
+                  <button class="btn btn-info text-white p-sm-x-2 px-md-2z">Done <i class="fas fa-check"></i></button>
+                </form>
+                {% else %}
+                <form action="{% url 'dashboard:TaskDone' task.id %}" method="POST"
+                  class="resp-p col-sm-4 col-md-4 col-lg-4 justify-content-end m-0">
+                  {% csrf_token %}
+                  <button class="btn btn-info text-white p-sm-x-2 px-md-2z" name="undone" value="undone">Undone <i class="fas fa-times"></i></button>
+                </form>
+                {%endif%}
+                {% endif %}
+                {% for g in grplist %}
+                {% if 'TL' == g|stringformat:"s" %}
+                <a href="{% url 'dashboard:editTask' task.id %}"
+                  class="cont2 resp-p col-sm-4 col-md-4 col-lg-3 btn btn-primary m-xs-0 m-sm-2  mb-sm-0 mt-sm-0">Edit</a>
+                <button type="button" class="cont2 resp-p col-sm-4 col-md-4 col-lg-3 btn btn-danger"
+                  data-bs-toggle="modal" data-bs-target="#Delete">
+                  Delete
+                </button>
+                {% endif %}
+                {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ task.description }}</h5>
+          <hr>
+          <p class="card-text">{{ task.moreinfo }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-sm mt-2 d-block d-md-none">
+  {% if request.user == task.user%}
+  {% if  task.status|stringformat:"s" != "Awaiting Review"%}
+  <form action="{% url 'dashboard:TaskDone' task.id %}" method="POST"
+    class="row resp-p  justify-content-end m-0 col-lg-1 col-md-2 col-4 col-sm-3">
+    {% csrf_token %}
+    <button class="btn btn-info text-white p-sm-x-2 px-md-2 resp-p px-0">Done <i class="fas fa-check"></i></button>
+  </form>
+  {% else %}
+  <form action="{% url 'dashboard:TaskDone' task.id %}" method="POST"
+    class="btn btn-info text-white p-sm-x-2 px-md-2 resp-p px-0">
+    {% csrf_token %}
+    <button class="btn btn-info text-white p-sm-x-2 px-md-2z" name="undone" value="undone">Undone <i class="fas fa-times"></i></button>
+  </form>
+  {%endif%}
+  {% endif %}
+{% for g in grplist %}
+  {% comment %} {% if request.user == task.user%}
+  <form action="{% url 'dashboard:TaskDone' task.id %}" method="POST"
+    class="row resp-p  justify-content-end m-0 col-lg-1 col-md-2 col-4 col-sm-3">
+    {% csrf_token %}
+    <button class="">Done <i class="fas fa-check"></i></button>
+  </form>
+  {% endif %} {% endcomment %}
+  {% if 'TL' == g|stringformat:"s" %}
+  <div class="row justify-content-end">
+    <a href="{% url 'dashboard:editTask' task.id %}" class="col-lg-1 col-md-2 col-3 btn btn-primary">Edit</a>
+    <button type="button" class="col-lg-1 col-md-2 col-4 col-sm-3 btn btn-danger mx-2" data-bs-toggle="modal"
+      data-bs-target="#Delete">
+      Delete
+    </button>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<div class="modal fade" id="Delete" tabindex="-1" aria-labelledby="DeleteLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="DeleteLabel">Are you sure you want to Delete "{{ task.title }}"</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Note that this Action can't be undone
+      </div>
+
+
+      <form action="{% url 'dashboard:deleteTask' task.id %}" method="POST">
+        {% csrf_token %}
+        <div class="container">
+          <label for="pass" class="form-label">Please Enter your password to confirm this action: </label>
+          <input type="password" id="password" name="password" class="form-control w-50" required>
+        </div>
+        <div class="modal-footer mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+{% endblock %}

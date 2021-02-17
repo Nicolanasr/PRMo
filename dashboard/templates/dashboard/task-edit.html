@@ -1,0 +1,140 @@
+{% extends "index/base.html" %}
+{% block title %}New Task{% endblock %}
+{% block content %}
+
+<div style="margin-top: 70px !important;"></div>
+{% for message in messages %}
+    <p id = "messages" class="bg-danger rounded w-auto text-center" style="color: rgb(223, 223, 223);"> {{ message }} </p>
+{% endfor %}
+<div class="container">
+
+  <div class="">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit Task</h5>
+      </div>
+      <div class="modal-body">
+        <form method='POST' action=''>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="title" class="form-label">Task Title</label>
+              <!-- <input type="text" class="form-control" id="title" maxlength="50" name="title" required> -->
+              {{ form.title }}
+              <div id="title" class="form-text">maximum 50 characters</div>
+            </div>
+            <div class="mb-3">
+              <label for="desc" class="form-label">Short Description</label>
+              <!-- <textarea type="text" class="form-control" id="desc" maxlength="200" name="desc" required></textarea> -->
+              {{ form.description }}
+              <div id="desc" class="form-text">maximum 200 characters</div>
+            </div>
+            <div class="mb-3">
+              <label for="fulldesc" class="form-label">Full Description</label>
+              <!-- <textarea type="text" class="form-control" id="fulldesc" name="fulldesc"></textarea> -->
+              {{ form.moreinfo }}
+              <div id="fulldesc" class="form-text">Explain The task in detail</div>
+            </div>
+            <div class="mb-3">
+              <label for="users" class="form-label">User</label>
+              <!-- <select class="form-select" aria-label="Default select example" id = 'users' name="user">
+                {% for user in users %}
+                <option value="{{ user }}">{{user}}</option>
+                {% endfor %}
+              </select> -->
+              <select name="user2" required="" id="id_user2">
+              
+              {% for user in users %}
+              {% if user|stringformat:"s" == "admin"  %}
+              {{user}}
+              
+              {% elif user == task.user %}
+              <option value={{user.id}} selected>{{user}}</option>
+              {% else %}
+              <option value={{user.id}}>{{user}}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            </div>
+
+            <div class="mb-3">
+            <div class="mb-3">
+            <div class="mb-3">
+            <div class="mb-3">
+            <div class="mb-3">
+            <div class="mb-3">
+            <div class="mb-3">
+            <div class="mb-3">
+              <!-- <select class="form-select" aria-label="Default select example" id = 'users' name="user">
+                {% for user in users %}
+                <option value="{{ user }}">{{user}}</option>
+                {% endfor %}
+              </select> -->
+              {{ form.user }}
+            </div>
+            
+
+            <div class="mb-3">
+              <label for="dueDate" class="form-label">Due Date</label>
+              <!-- <input type="date" class="form-control" id="dueDate" name = "due" required></input> -->
+              <!-- <div id="dueDate" class="form-text"></div> -->
+              {{ form.due }}
+            </div>
+
+            <div class="mb-3">
+              <label for="status" class="form-label">Status</label>
+              <!-- <select class="form-select" aria-label="Default select example" id = 'status' name = "status">
+                {% for status in statuses %}
+                <option value="{{ status }}">{{status}}</option>
+                {% endfor %}
+              </select> -->
+              {{ form.status }}
+            </div>
+            {% comment %} {% if usergp > 1 %}
+            {{form.group}}
+            {% endif %} {% endcomment %}
+            {{form.group}}
+
+            
+            <div class="mb-3">
+              <label class="form-label" for="passwordcomf">Enter your password to confirm:</label>
+              <input type="password" class="form-control" id="passwordcomf" name="password" required>
+              
+            </div>
+            
+            <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Edit</button>
+            </div>
+          </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+<script>
+    // document.getElementById('dueDate').valueAsDate = new Date();
+    var form_fields1 = document.getElementsByTagName('input')
+    var id_user = document.getElementById('id_user')
+    id_user.hidden = true
+    id_user.required = false
+    document.getElementById('id_user2').className += ' form-select'
+    document.getElementById('id_status').className += ' form-select'
+    document.getElementById('id_moreinfo').className += ' form-control'
+
+    var grp = document.getElementById('id_group')
+    grp.className += ' form-select'
+    if( {{usergp}} <= 2) {
+      grp.hidden = true
+    }
+
+    var x = document.getElementById('id_due')
+    x.setAttribute("type", "date");
+    
+    for (var field in form_fields1){
+        form_fields1[field].className += ' form-control'
+    }
+</script>
+
+
+{% endblock %}

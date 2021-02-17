@@ -1,0 +1,143 @@
+{% extends "index/base.html" %}
+{% load humanize %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+
+
+
+<!-- <div class="mt-5">
+    {% for task in tasks %}
+    {{task}} <br>
+    {% endfor %}
+</div> -->
+
+
+<div class="container-xs container-md p-0 p-sm-3 border border-secondary border-1 rounded-3"
+  style="margin-top: 100px; color: rgb(61, 68, 75);">
+  {% for message in messages %}
+  {% if message.tags|stringformat:"s" == "error"  %}
+  <p id="messages" class="bg-danger rounded text-center" style="color: rgb(255, 255, 255); width: 100%;"> {{ message }}
+  </p>
+  {% else %}
+  <p id="messages" class="bg-{{ message.tags }} rounded text-center" style="color: rgb(255, 255, 255); width: 190px;">
+    {{ message }} </p>
+  {%endif%}
+  {% endfor %}
+
+  <div class="container-xs container-md p-0 p-sm-3" style="color: rgb(61, 68, 75);">
+    <h4 class="h4 p-3 pb-0 d-flex justify-content-between">Tasks Awaiting Review:
+
+
+
+    </h4>
+    <div class="container-sm row">
+      <div class="col-sm-3">Ttile: </div>
+      <div class="col-sm-3">Assigned To: </div>
+      <div class="col-sm-3">Status: </div>
+      <div class="col-sm-3">Due: </div>
+    </div>
+    <hr>
+    <div class="accordion accordion-flush" id="accordionFlushExample">
+      {% for task in tasks %}
+      <!-- {{ forloop.counter }} -->
+      <div class="accordion-item">
+        {% if 'ago' in task.due|naturaltime %}
+        <h2 class="accordion-header  rounded" id="">
+          {% elif request.user == task.user %}
+          <h2 class="accordion-header rounded" style="background-color: #4ead9c;" id="">
+            {% else %}
+            <h2 class="accordion-header rounded" id="">
+              {% endif %}
+              <div class="accordion-button collapsed " type="button" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseOne" aria-expanded="false">
+                <div class="row w-100">
+                  <p class='col-sm-3'>{{ task.title }}</p>
+                  <p class='col-sm-3 text-md-start'>{{ task.user }}</p>
+                  <div class='col-sm-3'>
+                    <!-- <div class="row"> -->
+                    <span class="col-sm-6 justify-content-md-center badge">{{ task.status }}</span>
+                    <!-- </div> -->
+                  </div>
+                  <p class='col-sm-3 text-md-start pr-5'>{{ task.due|naturalday }}
+                    {% now "Y-m-d" as todays_date %}
+                  {% if todays_date > task.due|date:"Y-m-d" %}
+                    <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="Overdue">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-exclamation-triangle text-danger " viewBox="0 0 16 16">
+                        <path
+                          d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z" />
+                        <path
+                          d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z" />
+                      </svg>
+                    </span>
+                  {% endif %}
+                  </p>
+                </div>
+              </div>
+            </h2>
+            <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+              <div class="accordion-body p-0 p-sm-3">
+                <div class="card text-center">
+                  <div class="card-header">
+                    {{ task.title }}
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title resp-h2">{{ task.description }}</h5>
+                    <p class="card-text resp-p">{{ task.moreinfo|slice:":300" }}...</p>
+                    <a href={% url 'dashboard:task' task.id %} class="btn btn-primary">See Task</a>
+                  </div>
+                  <div class="card-footer text-muted">
+
+                    {{ task.added|naturaltime }}
+                  </div>
+                </div>
+              </div>
+            </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+
+  <script>
+    var accord = document.getElementsByClassName('accordion-collapse');
+    var flushy = document.querySelectorAll('[data-bs-target~="#flush-collapseOne"]');
+    var statuses = document.getElementsByClassName('badge');
+
+    nums = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve',
+      'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'
+    ];
+
+
+    for (let i = 0; i < flushy.length; i++) {
+      flushy[i].dataset["bsTarget"] = "#flush-collapse" + nums[i];
+    }
+
+    for (i in accord) {
+      accord[i].id = "flush-collapse" + nums[i];
+    }
+
+
+    for (stat in statuses) {
+      if (statuses[stat].textContent == 'Active') {
+        statuses[stat].className += ' bg-success'
+      }
+      if (statuses[stat].textContent == 'Not Active') {
+        statuses[stat].className += ' bg-danger'
+      }
+      if (statuses[stat].textContent == 'Awaiting Review') {
+        statuses[stat].className += ' bg-primary'
+      }
+      if (statuses[stat].textContent == 'Done') {
+        statuses[stat].className += ' bg-warning'
+      }
+      if (statuses[stat].textContent == 'In Progress') {
+        statuses[stat].className += ' bg-info'
+      }
+    }
+  </script>
+
+
+{% endblock %}
