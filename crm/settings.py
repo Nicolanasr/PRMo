@@ -23,9 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'cdg0+m(t&+ajv$tb10kq66($iw71_$8@_5w5w38^^ge+e%36)4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+#Production:
+# DEBUG = False
 
-ALLOWED_HOSTS = ['nicolas-prm-2.herokuapp.com', '127.0.0.1']
+# ALLOWED_HOSTS = ['nicolas-prm-2.herokuapp.com', '127.0.0.1']
+#testing:
+DEBUG = True
+
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -125,7 +130,7 @@ STATIC_URL = '/static/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'SMTP.GMAIL.COM'
 EMAIL_HOST_USER = 'nicolasnasr69@gmail.com'
-EMAIL_HOST_PASSWORD = 'coco3awn'
+EMAIL_HOST_PASSWORD = '*******'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 

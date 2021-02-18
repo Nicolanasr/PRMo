@@ -146,11 +146,30 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-light justify-content-between fixed-top" style="background-color: #e1f0f1 !important; color:#f8f9fa;">
+    <!-- <nav class="navbar navbar-light bg-light justify-content-between fixed-top" style="background-color: #e1f0f1 !important; color:#f8f9fa;">
         {% if request.user.is_authenticated %}
             <div class="container">
+			
                 <a class="navbar-brand" href={% url 'index:index' %}>PRM</a>
                 <div>
+					<div class="dropdown">
+						<a class="dropdown-toggle btn btn-outline-info" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16">
+								<path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+							  </svg>
+						</a>
+
+						<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+							{%for n in noti%}
+							{% if not n.read %}
+							<li><a class="dropdown-item" href={% url 'dashboard:task' n.task.id%}>{{n.notification}}: {{n.task.title}}</a></li>
+							<hr>
+							
+							{% endif %}
+							{%endfor%}
+							
+						</ul>
+					</div>
 				{% if show %}
 					{% for g in grp %}
 					{% if "TL" in g|stringformat:"s" %}
@@ -165,6 +184,7 @@
                     <a href={% url 'index:logout' %} class="btn btn-sm btn-outline-danger" type="button">Logout</a>
                 </div>
             </div>
+			
         {% else %}
             <div class="container">
                 <a href={% url 'index:index' %} class="navbar-brand" >PRM</a>
@@ -174,9 +194,67 @@
                 </div>
             </div>
         {% endif %}
-    </nav>
+    </nav> -->
 
+	<nav class="navbar navbar-light bg-light navbar-expand-lg navbar-light bg-light fixed-top" style="background-color: #e1f0f1 !important; color:#f8f9fa;">
+		{% if request.user.is_authenticated %}
+		<div class="container-fluid justify-content-between px-sm-5">
+			<a class="navbar-brand" href={% url 'index:index' %}>PRM</a>
 
+		  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		  </button>
+		  <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
+			<ul class="navbar-nav">
+				{% if show %}
+
+			<li class="nav-item dropdown">
+				<a class="dropdown-toggle btn btn-outline-info mx-lg-3" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16">
+						<path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+					  </svg>
+					  {{ noti.count }}
+				</a>
+			  <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+					{%for n in noti %}
+					{% if not n.read %}
+					<li><a class="dropdown-item" href={% url 'dashboard:task' n.task.id%}>{{n.notification}}: {{n.task.title}}</a></li>
+					<hr>
+					
+					{% endif %}
+					{%endfor%}
+			  </ul>
+			  {% endif %}
+			</li>
+			  <li class="nav-item">
+				{% if show %}
+					{% for g in grp %}
+					{% if "TL" in g|stringformat:"s" %}
+					{% comment %} con {% endcomment %}
+					{% elif group == g|stringformat:"s" %}
+						<a class="btn btn-outline-primary me-2" type="button" href="{% url 'dashboard:TaskReview' g%}">Tasks awaiting Review</a>
+					{% endif %}
+				{% endfor %}
+				{% endif %}
+			  </li>
+			  <li class="nav-item">
+				<a href={% url 'index:login' %} class="btn btn-outline-secondary me-2" type="button">{{request.user}}</a>
+			</li>
+			<li class="nav-item align-self-center"><a href={% url 'index:logout' %} class="btn btn-sm btn-outline-danger" type="button">Logout</a>
+			</li>
+			</ul>
+		  </div>
+		  {% else %}
+		  <div class="container-fluid justify-content-between w-100">
+			<a class="navbar-brand" href={% url 'index:index' %}>PRM</a>
+		  <div>
+			<a href={% url 'index:login' %} class="btn btn-outline-success me-2" type="button">Login</a>
+			<a href={% url 'index:register' %} class="btn btn-sm btn-outline-secondary" type="button">Sign Up</a>
+		  </div>
+		  </div>
+		  {% endif %}
+		</div>
+	  </nav>
 
 
     {% block content %}{% endblock %}
