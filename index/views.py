@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CreateUserForm
@@ -17,7 +17,11 @@ def index(request):
         grplist.append(x)
     
     if request.user.is_authenticated:
-        return redirect('dashboard:index', grplist[0])
+        try:
+            return redirect('dashboard:index', grplist[0])
+        except:
+            raise Http404('Plese contact your admin to assign you to a group')
+
     else:
         return render(request, 'index/landing.html')
 

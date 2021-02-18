@@ -4,6 +4,9 @@
 {% block content %}
 
 <div class="container-sm " style="margin-top: 100px;">
+{% comment %} {%for n in noti%}
+{{n.user}} {{n.task.id}} <br>
+{% endfor %} {% endcomment %}
   {% for message in messages %}
   {% if message.tags|stringformat:"s" == "error"  %}
   <p id="messages" class="bg-danger rounded text-center" style="color: rgb(255, 255, 255); width: 100%;"> {{ message }}
@@ -13,7 +16,7 @@
     {{ message }} </p>
   {%endif%}
   {% endfor %}
-  <div class="">
+  <div class="mb-5">
     <div class="modal-content">
       <div class="card">
         <div class="card-header container ">
@@ -126,12 +129,10 @@
 </div>
 {% endif %}
 {% endfor %}
-
-
+</div>
 <h2 class="mt-5">Comments...</h2>
 
 <hr>
-</div>
   <div class="container resp-p">
     <form method="POST" action="{% url 'dashboard:addComment' task.id%}" class="container">
       {% csrf_token %}
