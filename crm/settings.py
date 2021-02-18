@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'cdg0+m(t&+ajv$tb10kq66($iw71_$8@_5w5w38^^ge+e%36)4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['nicolas-prm-2.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
