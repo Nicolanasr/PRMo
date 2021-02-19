@@ -7,7 +7,6 @@
     <p id = "messages" class="bg-danger rounded w-auto text-center" style="color: rgb(223, 223, 223);"> {{ message }} </p>
 {% endfor %}
 <div class="container">
-
   <div class="">
     <div class="modal-content">
       <div class="modal-header">
@@ -18,20 +17,20 @@
             {% csrf_token %}
             <div class="mb-3">
               <label for="title" class="form-label">Task Title</label>
-              <!-- <input type="text" class="form-control" id="title" maxlength="50" name="title" required> -->
-              {{ form.title }}
+              <input type="text" class="form-control" id="title" maxlength="50" name="title" required>
+              <!-- {{ form.title }} -->
               <div id="title" class="form-text">maximum 50 characters</div>
             </div>
             <div class="mb-3">
               <label for="desc" class="form-label">Short Description</label>
-              <!-- <textarea type="text" class="form-control" id="desc" maxlength="200" name="desc" required></textarea> -->
-              {{ form.description }}
+              <textarea type="text" class="form-control" id="desc" maxlength="200" name="desc" required></textarea>
+              <!-- {{ form.description }} -->
               <div id="desc" class="form-text">maximum 200 characters</div>
             </div>
             <div class="mb-3">
               <label for="fulldesc" class="form-label">Full Description</label>
-              <!-- <textarea type="text" class="form-control" id="fulldesc" name="fulldesc"></textarea> -->
-              {{ form.moreinfo }}
+              <textarea type="text" class="form-control" id="fulldesc" name="fulldesc"></textarea>
+              <!-- {{ form.moreinfo }} -->
               <div id="fulldesc" class="form-text">Explain The task in detail</div>
             </div>
             <div class="mb-3">
@@ -41,18 +40,18 @@
                 <option value="{{ user }}">{{user}}</option>
                 {% endfor %}
               </select> -->
-              <select name="user2" required="" id="id_user2">
+              <select name="user2" required="" id="id_user2" class="form-select">
               {% for user in users %}
               {% if user|stringformat:"s" == "admin"  %}
               {{user}}
               {% else %}
-              <option value={{user.id}}>{{user}}</option>
+              <option value={{user.id}} >{{user}}</option>
               {% endif %}
               {% endfor %}
             </select>
             </div>
 
-            <div class="mb-3">
+            {% comment %} <div class="mb-3">
             <div class="mb-3">
             <div class="mb-3">
             <div class="mb-3">
@@ -65,30 +64,30 @@
                 <option value="{{ user }}">{{user}}</option>
                 {% endfor %}
               </select> -->
-              {{ form.user }}
+              <!-- {{ form.user }} -->
             </div>
-            
+             {% endcomment %}
 
             <div class="mb-3">
               <label for="dueDate" class="form-label">Due Date</label>
-              <!-- <input type="date" class="form-control" id="dueDate" name = "due" required></input> -->
+              <input type="date" class="form-control" id="dueDate" name = "due" required></input>
               <!-- <div id="dueDate" class="form-text"></div> -->
-              {{ form.due }}
+              <!-- {{ form.due }} -->
             </div>
 
             <div class="mb-3">
               <label for="status" class="form-label">Status</label>
-              <!-- <select class="form-select" aria-label="Default select example" id = 'status' name = "status">
+              <select class="form-select" aria-label="Default select example" id = 'status' name = "status">
                 {% for status in statuses %}
-                <option value="{{ status }}">{{status}}</option>
+                <option value="{{ status.id }}">{{status}}</option>
                 {% endfor %}
-              </select> -->
-              {{ form.status }}
+              </select>
+              <!-- {{ form.status }} -->
             </div>
-            {% comment %} {% if usergp > 1 %}
+            <!-- {% comment %} {% if usergp > 1 %}
             {{form.group}}
             {% endif %} {% endcomment %}
-            {{form.group}}
+            {{form.group}} -->
             
             <div class="mb-3">
               <label class="form-label" for="passwordcomf">Enter your password to confirm:</label>
@@ -121,7 +120,7 @@
     grp.className += ' form-select'
     var list = "{{grplist}}"
 
-    if( {{usergp}} <= 2) {
+    if(' {{usergp}}' <= 2) {
       grp.hidden = true
     }
     

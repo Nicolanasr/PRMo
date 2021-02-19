@@ -1,27 +1,31 @@
 from django.shortcuts import render, reverse, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from index.models import Task, User, Status, Group
+from index.models import Task, User, Status, Group, Comment, Notification
 from django.contrib import messages
 from .forms import TaskForm
 from django.http import Http404
 from django.contrib.auth.decorators import user_passes_test
+import datetime
 # Create your views here.
 
 def can_add(user):
     if user.groups.filter(name='TL').exists():
         return True
     else:
-        raise Http404("You do not have permission to access this page")
+        return False
 
 
 @login_required(login_url="index:login")
 def index1(request):
-    usergp = request.user.groups.all()
-    grplist =[]
-    for x in usergp:
-        grplist.append(x)
-    return redirect('dashboard:index', grplist[0])
+    try:
+        usergp = request.user.groups.all()
+        grplist =[]
+        for x in usergp:
+            grplist.append(x)
+        return redirect('dashboard:index', grplist[0])
+    except:
+        raise Http404('Plese contact your admin to assign you to a group')
 
 @login_required(login_url="index:login")
 def index(request, group):
@@ -33,10 +37,16 @@ def index(request, group):
     # ctx = {'tasks': task, 'users': users, 'statuses': statuses}
     # return render(request, 'dashboard/dashboard.html', ctx)
     obj = get_object_or_404(Group, name=group)
+    noti = Notification.objects.filter(user=request.user)
+    # noti = noti.notification
     usergp = request.user.groups.all()
     grplist =[]
     for x in usergp:
         grplist.append(x)
+    
+    show = False
+    if can_add(request.user):
+        show = True
     
     if group not in str(grplist):
         messages.error(request, "You do not have permission to access :  \"" 
@@ -47,7 +57,7 @@ def index(request, group):
         grp = Group.objects.get(name=group)
         grp = grp.id
         task = Task.objects.filter(group=grp)
-        ctx = {'tasks': task, 'grp':list(usergp), 'group': group}
+        ctx = {'tasks': task, 'grp':list(usergp), 'group': group, 'show': show, 'noti': noti}
         return render(request, 'dashboard/dashboard.html', ctx)
 
 @user_passes_test(can_add)
@@ -55,61 +65,66 @@ def createTask(request, group_from_url):
     get_object_or_404(Group, name=group_from_url)
     usergp = request.user.groups.all()
     users=[]
+    statuses = Status.objects.all()
 
     users = User.objects.filter(groups__name=group_from_url)
 
-    form = TaskForm()
+    # form = TaskForm()
     grplist =[]
     for x in usergp:
         grplist.append(x.name)
-    ctx = {'form': form, 'usergp':len(grplist), 'users': users, 'grplist': grplist}
+    # ctx = {'form': form, 'usergp':len(grplist), 'users': users, 'grplist': grplist, 'statuses':statuses}
+    ctx = {'usergp':len(grplist), 'users': users, 'grplist': grplist, 'statuses':statuses}
+
     
     if request.method == 'POST':
-        form = TaskForm(request.POST)
-        if form.is_valid:
-            if request.user.check_password(request.POST.get('password')):
-                titl = request.POST.get('title')
-                user = request.POST.get('user2')
-                grpid = request.POST.get('group')
-                grp = get_object_or_404(Group, id=grpid)
-                taskgrp = request.user.groups.all()
-                print(user)
-                print(grp, "\n", taskgrp)
-                # if grp in taskgrp:
-                form.save()
-                user = get_object_or_404(User, id=user)
-                if user in users:
-                    print(user)
-                    taskgrp = request.user.groups.all()[0]
-                    Task.objects.filter(title=titl).update(group=taskgrp)
-                    Task.objects.filter(title=titl).update(user=user)
-                    # Task.objects.filter(title=titl).update(group=grpid)
-                    # Task.objects.filter(title=titl).update(user=user)
-                else:
-                    messages.error(request, 'already thought of that try something else ')
-                    return redirect('dashboard:addTask', group_from_url)
-                # else:
-                #     messages.error(request, 'You do not have permission to add to group: '+ str(grp))
-                #     return redirect('dashboard:addTask')
-                messages.success(request, 'Task added Successfully')
-                return redirect('dashboard:index', grplist[0])
+        # form = TaskForm(request.POST)
+        # if form.is_valid:
+        if request.user.check_password(request.POST.get('password')):
+            titl = request.POST.get('title')
+            desc = request.POST.get('desc')
+            fulldesc = request.POST.get('fulldesc')
+            user = request.POST.get('user2')
+            due = request.POST.get('due')
+            status = request.POST.get('status')
+            status = get_object_or_404(Status, id=status)
+
+            grp = get_object_or_404(Group, name=group_from_url)
+            taskgrp = request.user.groups.all()
+            user = get_object_or_404(User, id=user)
+            if user in users:
+                task = Task(title=titl, user=user, group=grp, status=status, description=desc, moreinfo=fulldesc, due=due)
+                task.save()
             else:
-                messages.error(request, 'password incorrect (please enter the password You signed in with)')
+                messages.error(request, 'already thought of that try something else ')
+                return redirect('dashboard:addTask', group_from_url)
+            # else:
+            #     messages.error(request, 'You do not have permission to add to group: '+ str(grp))
+            #     return redirect('dashboard:addTask')
+            messages.success(request, 'Task added Successfully')
+            return redirect('dashboard:index', grplist[0])
+        else:
+            messages.error(request, 'password incorrect (please enter the password You signed in with)')
     return render(request, 'dashboard/Task-create.html', ctx)
 
 @login_required(login_url="index:login")
 def task(request, task):
     get_object_or_404(Task, id=task)
-
-    
+    task = Task.objects.get(id=task)
+    try:
+        noti = Notification.objects.get(task=task)
+        if request.user == task.user:
+            noti.delete()
+    except:
+        pass
     usergp = request.user.groups.all()
     users = User.objects.filter(groups__name=usergp[0].name)
-    form = TaskForm()
+    # form = TaskForm()
     grplist =[]
     for x in usergp:
         grplist.append(x)
 
-    task = Task.objects.get(id=task)
+    # task = Task.objects.get(id=task)
     taskgrp = task.group
     if taskgrp in grplist:
         ctx = {'task': task, 'grplist': grplist, 'taskgrp':taskgrp}
@@ -126,40 +141,57 @@ def task(request, task):
 def editTask(request, task):
     usergp = request.user.groups.all()
     task = Task.objects.get(id=task)
-    form = TaskForm(instance=task)
+    # form = TaskForm(instance=task)
     task_grp = task.group
     users = User.objects.filter(groups__name=task_grp.name)
+    statuses = Status.objects.all()
+
     grplist =[]
     for x in usergp:
         grplist.append(x)
-    ctx = {'form': form, 'task': task, 'usergp':len(grplist), 'users': users}
+    ctx = {'task': task, 'usergp':len(grplist), 'users': users, 'statuses': statuses}
     if request.method == 'POST':
-        form = TaskForm(request.POST, instance=task)
-        if form.is_valid:
-            if request.user.check_password(request.POST.get('password')):
-                titl = request.POST.get('title')
-                user = request.POST.get('user2')
-                grpid = request.POST.get('group')
-                grp = get_object_or_404(Group, id=grpid)
-                taskgrp = request.user.groups.all()
-                if grp in taskgrp:
-                    form.save()
-                    user = get_object_or_404(User, id=user)
-                    print(user, '\n', users)
-                    if user in users:
-                        Task.objects.filter(title=titl).update(group=grpid)
-                        Task.objects.filter(title=titl).update(user=user)
-                        messages.success(request, 'Task Updated')
-                    else:
-                        messages.error(request, 'already thought of that try something else ')
-                        return redirect('dashboard:editTask', task.id)
-                    
-                else:
-                    messages.error(request, 'You do not have permission to add to group: '+ str(grp))
-                    return redirect('dashboard:editTask', task.id)
-                return redirect('dashboard:index', grplist[0])
+        # form = TaskForm(request.POST, instance=task)
+        # if form.is_valid:
+        if request.user.check_password(request.POST.get('password')):
+            titl = request.POST.get('title')
+            user = request.POST.get('user2')
+            desc = request.POST.get('desc')
+            fulldesc = request.POST.get('fulldesc')
+            # user = request.POST.get('user2')
+            due = request.POST.get('due')
+            status = request.POST.get('status')
+            status = get_object_or_404(Status, id=status)
+            # print(task.id)
+            # grpid = request.POST.get('group')
+            # grp = get_object_or_404(Group, id=grpid)
+            # taskgrp = request.user.groups.all()
+            # if grp in taskgrp:
+            # form.save()
+            
+            user = get_object_or_404(User, id=user)
+            # print(user, '\n', users)
+            if user in users:
+                # Task.objects.filter(title=titl).update(group=grpid)
+                t = Task.objects.get(id=task.id)
+                t.title=titl 
+                t.user=user 
+                t.description=desc 
+                t.moreinfo=fulldesc 
+                t.due=due 
+                t.status=status
+                t.save()
+                messages.success(request, 'Task Updated')
             else:
-                messages.error(request, 'password incorrect (please enter the password You signed in with)')
+                messages.error(request, 'already thought of that try something else ')
+                return redirect('dashboard:editTask', task.id)
+                
+            # else:
+            #     messages.error(request, 'You do not have permission to add to group: '+ str(grp))
+            #     return redirect('dashboard:editTask', task.id)
+            return redirect('dashboard:index', grplist[0])
+        else:
+            messages.error(request, 'password incorrect (please enter the password You signed in with)')
     return render(request, 'dashboard/task-edit.html', ctx)
 
 @user_passes_test(can_add)
@@ -223,3 +255,22 @@ def TaskReview(request, group):
     return redirect('dashboard:index', group)
 
 
+def addComment(request, task):
+    taskid = get_object_or_404(Task, id=task)
+    if request.method == 'POST':
+        comment_body = request.POST.get('comment_sent')
+        title = comment_body[:50]
+        user = request.user
+        date_added = datetime.datetime.now()
+
+        comment = Comment(task=taskid, user=user, date_added=date_added, body=comment_body, title=title)
+        comment.save()
+
+    return redirect('dashboard:task', task)
+
+def deleteComment(request, task, comment_id):
+    c_id = get_object_or_404(Comment, id=comment_id)
+    print(c_id.user)
+    if request.user == c_id.user:
+        c_id.delete()
+    return redirect('dashboard:task', task)

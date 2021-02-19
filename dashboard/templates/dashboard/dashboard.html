@@ -7,6 +7,7 @@
 
 <div class="container-xs container-md p-0 p-sm-3 border border-secondary border-1 rounded-3"
   style="margin-top: 100px; color: rgb(61, 68, 75);">
+
   {% for message in messages %}
   {% if message.tags|stringformat:"s" == "error"  %}
   <p id="messages" class="bg-danger rounded text-center" style="color: rgb(255, 255, 255); width: 100%;"> {{ message }}
