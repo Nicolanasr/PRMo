@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,14 +25,15 @@ SECRET_KEY = 'cdg0+m(t&+ajv$tb10kq66($iw71_$8@_5w5w38^^ge+e%36)4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #Production:
-DEBUG = False
+# DEBUG = False
 
-ALLOWED_HOSTS = ['nicolas-prm-2.herokuapp.com', '127.0.0.1']
+# ALLOWED_HOSTS = ['nicolas-prm-2.herokuapp.com', '127.0.0.1']
 
 #testing:
-# DEBUG = True
 
-# ALLOWED_HOSTS = []
+DEBUG = True
+
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -126,7 +129,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'SMTP.GMAIL.COM'
